@@ -2,6 +2,7 @@ from nicegui import ui
 from modules.scanner import Scanner
 from modules.ui_components import create_scanner_grid
 import logging
+import json
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO)
@@ -16,9 +17,16 @@ def refresh_grid(grid):
     try:
         data = scanner.get_matrix()
         if data:
-            grid.options['rowData'] = data
-            grid.update()
-            logging.info(f"Grid updated with {len(data)} rows.")
+            # Ensure purely JSON compatible
+            try:
+                # Use json.dumps/loads to ensure strict JSON compatibility 
+                # (converting custom objects/NaNs to valid JSON types)
+                safe_data = json.loads(json.dumps(data, default=str))
+                grid.options['rowData'] = safe_data
+                grid.update()
+                logging.info(f"Grid updated with {len(safe_data)} rows.")
+            except Exception as e:
+                logging.error(f"Serialization/Update failed: {e}")
         else:
             logging.warning("No data found for grid.")
     except Exception as e:
@@ -51,5 +59,5 @@ def main_page():
             # Manual Refresh Button
             ui.button('Refresh Now', on_click=lambda: refresh_grid(grid)).classes('mt-2')
 
-ui.run(title='Confluence Scanner', dark=True)
-
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run(title='Confluence Scanner', dark=True, reload=False, port=8081)

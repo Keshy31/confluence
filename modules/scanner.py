@@ -103,6 +103,9 @@ class Scanner:
             # Convert Timestamps to string for JSON serialization
             if 'last_updated' in df.columns:
                 df['last_updated'] = df['last_updated'].astype(str)
+            
+            # Replace NaNs with None for JSON compatibility (Strict JSON spec)
+            df = df.where(pd.notnull(df), None)
 
             return df.to_dict('records')
             
