@@ -1,0 +1,7 @@
+nicegui
+duckdb
+pandas
+pandas-ta
+yfinance
+plotly
+
